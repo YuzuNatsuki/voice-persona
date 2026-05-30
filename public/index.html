@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>声のペルソナ - 話し方でNPCが変わる</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>🎙️ 声のペルソナ</h1>
+    <p class="subtitle">あなたの話し方で、NPCのパーソナリティが変化する</p>
+  </header>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- キャラクター選択エリア                        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="character-selector-wrapper">
+    <div class="character-selector" id="characterSelector">
+
+      <button class="char-card active" data-char-id="gard">
+        <img class="char-card-avatar" src="images/ガルド.png" alt="ガルド">
+        <span class="char-card-name">ガルド</span>
+        <span class="char-card-role">情報屋</span>
+      </button>
+
+      <button class="char-card" data-char-id="lilia">
+        <img class="char-card-avatar" src="images/リリア.png" alt="リリア">
+        <span class="char-card-name">リリア</span>
+        <span class="char-card-role">気まぐれな魔女</span>
+      </button>
+
+      <button class="char-card" data-char-id="crow">
+        <img class="char-card-avatar" src="images/クロウ.png" alt="クロウ">
+        <span class="char-card-name">クロウ</span>
+        <span class="char-card-role">無口な賞金稼ぎ</span>
+      </button>
+
+      <button class="char-card" data-char-id="zet">
+        <img class="char-card-avatar" src="images/ゼット.png" alt="ゼット">
+        <span class="char-card-name">ゼット</span>
+        <span class="char-card-role">胡散臭い商人</span>
+      </button>
+
+    </div>
+  </div>
+
+  <main class="main-layout">
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- 左カラム：NPCエリア                      -->
+    <!-- ═══════════════════════════════════════ -->
+    <section class="npc-area">
+
+      <!-- NPCアイコン + 感情状態 -->
+      <div class="npc-avatar-wrapper">
+        <div class="npc-avatar" id="npcAvatar"><img src="images/ガルド.png" alt="ガルド"></div>
+        <div class="npc-name" id="npcName">情報屋 ガルド</div>
+        <div class="npc-emotion-badge" id="npcEmotion">様子を伺っている</div>
+      </div>
+
+      <!-- NPCのセリフ（吹き出し風） -->
+      <div class="speech-bubble" id="npcSpeech">
+        ……何か用か？金を持ってんなら話を聞いてやらんこともない。
+      </div>
+
+      <!-- ステータスバー -->
+      <div class="status-panel">
+        <h3 class="status-title">NPC ステータス</h3>
+
+        <div class="status-row">
+          <span class="status-label">好感度</span>
+          <div class="status-bar-track">
+            <div class="status-bar affection-bar" id="affectionBar" style="width: 50%"></div>
+          </div>
+          <span class="status-value" id="affectionValue">50</span>
+        </div>
+
+        <div class="status-row">
+          <span class="status-label">信頼度</span>
+          <div class="status-bar-track">
+            <div class="status-bar trust-bar" id="trustBar" style="width: 50%"></div>
+          </div>
+          <span class="status-value" id="trustValue">50</span>
+        </div>
+
+        <div class="status-row">
+          <span class="status-label">苛立ち</span>
+          <div class="status-bar-track">
+            <div class="status-bar irritation-bar" id="irritationBar" style="width: 0%"></div>
+          </div>
+          <span class="status-value" id="irritationValue">0</span>
+        </div>
+      </div>
+
+      <!-- 会話回数 -->
+      <div class="conversation-count">
+        会話回数: <span id="conversationCount">0</span> 回
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- 右カラム：プレイヤーエリア                -->
+    <!-- ═══════════════════════════════════════ -->
+    <section class="player-area">
+
+      <!-- マイクボタン -->
+      <div class="mic-wrapper">
+        <button class="mic-button" id="micButton" title="クリックして録音開始">
+          <span class="mic-icon">🎤</span>
+        </button>
+        <div class="mic-label" id="micLabel">タップして話しかける</div>
+      </div>
+
+      <!-- 音声ファイルアップロード -->
+      <div class="upload-wrapper">
+        <label class="upload-label" for="audioFile">
+          <span class="upload-icon">📁</span>
+          <span id="uploadLabel">音声ファイルをアップロード</span>
+        </label>
+        <input type="file" id="audioFile" accept="audio/*" style="display:none" />
+        <div class="upload-hint">WAV / MP3 / M4A など対応</div>
+      </div>
+
+      <!-- 認識テキスト表示エリア -->
+      <div class="recognition-area">
+        <div class="recognition-label">認識テキスト</div>
+        <div class="recognition-text" id="recognitionText">
+          <span class="placeholder">話しかけると、ここに文字が表示されます...</span>
+        </div>
+      </div>
+
+      <!-- 発話分析バッジ -->
+      <div class="analysis-panel">
+        <div class="analysis-title">発話分析</div>
+        <div class="badges">
+          <div class="badge-item">
+            <span class="badge-label">話速</span>
+            <span class="badge-value" id="speedBadge">―</span>
+          </div>
+          <div class="badge-item">
+            <span class="badge-label">感情</span>
+            <span class="badge-value" id="emotionBadge">―</span>
+          </div>
+          <div class="badge-item">
+            <span class="badge-label">口調</span>
+            <span class="badge-value" id="toneBadge">―</span>
+          </div>
+          <div class="badge-item">
+            <span class="badge-label">精度</span>
+            <span class="badge-value" id="confidenceBadge">―</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- エラーメッセージ表示 -->
+      <div class="error-message" id="errorMessage" style="display: none;"></div>
+
+      <!-- 処理中インジケーター -->
+      <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+        <span class="loading-dots">NPCが考えています</span>
+      </div>
+
+      <!-- 使い方ガイド -->
+      <div class="guide-panel" id="guidePanel">
+        <h4>💡 ヒント</h4>
+        <ul id="guideList">
+          <li>丁寧にゆっくり話すと好感度が上がります</li>
+          <li>乱暴な言葉はNPCを苛立たせます</li>
+          <li>信頼度が高いと特別な情報を教えてもらえます</li>
+        </ul>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+/* ============================================================
+   style.css - 声のペルソナ スタイルシート
+   ゲームUIを意識した暗めのファンタジー風デザイン
+   ============================================================ */
+
+/* ── CSS変数（デザイントークン） ───────────────────────────── */
+:root {
+  --bg-primary:    #0f0f1a;
+  --bg-card:       #1a1a2e;
+  --bg-card-hover: #1e1e35;
+  --border-color:  #2a2a4a;
+  --accent-gold:   #c9a84c;
+  --accent-blue:   #4a9eff;
+  --text-primary:  #e8e8f0;
+  --text-secondary:#9090b0;
+  --text-muted:    #5a5a7a;
+  --affection-color: #ff6b9d;
+  --trust-color:     #4a9eff;
+  --irritation-color:#ff4444;
+  --success-color:   #4caf50;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+/* ── リセット・ベース ───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── ヘッダー ─────────────────────────────────────────────── */
+.app-header {
+  text-align: center;
+  padding: 24px 16px 16px;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(180deg, #12122080 0%, transparent 100%);
+}
+
+.app-header h1 {
+  font-size: 1.8rem;
+  color: var(--accent-gold);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 20px #c9a84c60;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+
+/* ── キャラクター選択 ────────────────────────────────────── */
+.character-selector-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 16px 16px 0;
+}
+
+.character-selector {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.char-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+  min-width: 80px;
+}
+
+.char-card:hover {
+  border-color: var(--accent-gold);
+  background: var(--bg-card-hover);
+}
+
+.char-card:active { transform: scale(0.96); }
+
+.char-card.active {
+  border-color: var(--accent-gold);
+  background: #1e1a0a;
+  box-shadow: 0 0 12px #c9a84c30;
+}
+
+.char-card-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  background: #12122a;
+}
+.char-card-name   { font-size: 0.85rem; font-weight: bold; color: var(--text-primary); }
+.char-card-role   { font-size: 0.65rem; color: var(--text-muted); }
+
+/* ── メインレイアウト（左右2カラム） ─────────────────────── */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-width: 960px;
+  margin: 24px auto;
+  padding: 0 16px;
+  width: 100%;
+  flex: 1;
+}
+
+/* ── 共通カードスタイル ──────────────────────────────────── */
+.npc-area, .player-area {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* NPCエリア                                                   */
+/* ═══════════════════════════════════════════════════════════ */
+
+.npc-avatar-wrapper {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.npc-avatar {
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #12122a;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  overflow: hidden;
+  transition: border-color 0.4s, box-shadow 0.4s;
+  font-size: 4rem;
+}
+
+.npc-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+/* 感情状態によってアバターの色が変わる */
+.npc-avatar.happy    { border-color: var(--affection-color); box-shadow: 0 0 16px #ff6b9d50; }
+.npc-avatar.angry    { border-color: var(--irritation-color); box-shadow: 0 0 16px #ff444450; }
+.npc-avatar.trusting { border-color: var(--trust-color); box-shadow: 0 0 16px #4a9eff50; }
+
+.npc-name {
+  font-size: 0.95rem;
+  color: var(--accent-gold);
+  font-weight: bold;
+  letter-spacing: 0.1em;
+}
+
+.npc-emotion-badge {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  background: #12122a;
+  border: 1px solid var(--border-color);
+  padding: 3px 10px;
+  border-radius: 20px;
+  transition: color 0.3s;
+}
+
+/* ── 吹き出し ─────────────────────────────────────────────── */
+.speech-bubble {
+  background: #12122a;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  position: relative;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  min-height: 80px;
+  transition: border-color 0.3s;
+}
+
+/* 吹き出しの三角形（上向き） */
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: var(--border-color);
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-bottom-color: #12122a;
+}
+
+/* テキスト更新時のフェードアニメーション */
+.speech-bubble.updated {
+  animation: bubbleUpdate 0.5s ease;
+}
+@keyframes bubbleUpdate {
+  0%   { opacity: 0.3; transform: scale(0.98); }
+  100% { opacity: 1;   transform: scale(1); }
+}
+
+/* ── ステータスパネル ─────────────────────────────────────── */
+.status-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.status-title {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  width: 42px;
+  flex-shrink: 0;
+}
+
+.status-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #0a0a18;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.status-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.affection-bar  { background: linear-gradient(90deg, #c94b8c, #ff6b9d); }
+.trust-bar      { background: linear-gradient(90deg, #2a6fcc, #4a9eff); }
+.irritation-bar { background: linear-gradient(90deg, #cc2a2a, #ff4444); }
+
+.status-value {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.conversation-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════════════════ */
+/* プレイヤーエリア                                             */
+/* ═══════════════════════════════════════════════════════════ */
+
+.mic-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.mic-button {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--accent-gold);
+  background: #1a1208;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.3s;
+  outline: none;
+}
+
+.mic-button:hover {
+  background: #241a0a;
+  box-shadow: 0 0 16px #c9a84c40;
+}
+
+.mic-button:active {
+  transform: scale(0.95);
+}
+
+/* 録音中スタイル：赤く点滅 */
+.mic-button.recording {
+  border-color: var(--irritation-color);
+  background: #1a0808;
+  animation: micPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 #ff444440; }
+  50%       { box-shadow: 0 0 0 12px #ff444400; }
+}
+
+.mic-icon { font-size: 2rem; }
+
+.mic-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ── ファイルアップロード ─────────────────────────────────── */
+.upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.upload-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: #0d0d1f;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.upload-label:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.upload-label.processing {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  pointer-events: none;
+  animation: uploadPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes uploadPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.upload-icon { font-size: 1.1rem; }
+
+.upload-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ── 認識テキスト ─────────────────────────────────────────── */
+.recognition-area {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recognition-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.recognition-text {
+  background: #0a0a18;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  min-height: 60px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.recognition-text .placeholder { color: var(--text-muted); }
+
+/* ── 発話分析バッジ ────────────────────────────────────────── */
+.analysis-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.analysis-title {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.badges {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.badge-item {
+  background: #0a0a18;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.badge-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.badge-value {
+  font-size: 0.85rem;
+  color: var(--accent-gold);
+  font-weight: bold;
+}
+
+/* ── エラー・ローディング ─────────────────────────────────── */
+.error-message {
+  background: #1a0808;
+  border: 1px solid var(--irritation-color);
+  color: #ff8888;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.85rem;
+}
+
+.loading-indicator {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  padding: 8px;
+}
+
+.loading-dots::after {
+  content: '';
+  animation: dots 1.4s steps(4, end) infinite;
+}
+@keyframes dots {
+  0%   { content: ''; }
+  25%  { content: '.'; }
+  50%  { content: '..'; }
+  75%  { content: '...'; }
+  100% { content: ''; }
+}
+
+/* ── ガイドパネル ─────────────────────────────────────────── */
+.guide-panel {
+  background: #0d0d1f;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-top: auto;
+}
+
+.guide-panel h4 {
+  font-size: 0.8rem;
+  color: var(--accent-gold);
+  margin-bottom: 8px;
+}
+
+.guide-panel ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.guide-panel li {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding-left: 12px;
+  position: relative;
+}
+
+.guide-panel li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--accent-gold);
+}
+
+/* ── レスポンシブ対応 ────────────────────────────────────── */
+@media (max-width: 640px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .app-header h1 { font-size: 1.4rem; }
+}

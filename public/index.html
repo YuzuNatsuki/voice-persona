@@ -106,14 +106,6 @@
     <!-- ═══════════════════════════════════════ -->
     <section class="player-area">
 
-      <!-- マイクボタン -->
-      <div class="mic-wrapper">
-        <button class="mic-button" id="micButton" title="クリックして録音開始">
-          <span class="mic-icon">🎤</span>
-        </button>
-        <div class="mic-label" id="micLabel">タップして話しかける</div>
-      </div>
-
       <!-- 音声ファイルアップロード -->
       <div class="upload-wrapper">
         <label class="upload-label" for="audioFile">
@@ -121,14 +113,14 @@
           <span id="uploadLabel">音声ファイルをアップロード</span>
         </label>
         <input type="file" id="audioFile" accept="audio/*" style="display:none" />
-        <div class="upload-hint">WAV / MP3 / M4A など対応</div>
+        <div class="upload-hint">WAV / MP3 / M4A など対応（感情分析つき）</div>
       </div>
 
       <!-- 認識テキスト表示エリア -->
       <div class="recognition-area">
         <div class="recognition-label">認識テキスト</div>
         <div class="recognition-text" id="recognitionText">
-          <span class="placeholder">話しかけると、ここに文字が表示されます...</span>
+          <span class="placeholder">音声ファイルを選んで話しかけてください…</span>
         </div>
       </div>
 
@@ -155,6 +147,14 @@
         </div>
       </div>
 
+      <!-- AmiVoice 感情スコア詳細（20 指標） -->
+      <details class="sentiment-panel" id="sentimentPanel">
+        <summary>📊 AmiVoice 感情スコア詳細（クリックで展開）</summary>
+        <div class="sentiment-scores" id="sentimentScores">
+          <div class="sentiment-empty">音声をアップロードするとここにスコアが表示されます</div>
+        </div>
+      </details>
+
       <!-- エラーメッセージ表示 -->
       <div class="error-message" id="errorMessage" style="display: none;"></div>
 
@@ -167,9 +167,10 @@
       <div class="guide-panel" id="guidePanel">
         <h4>💡 ヒント</h4>
         <ul id="guideList">
-          <li>丁寧にゆっくり話すと好感度が上がります</li>
-          <li>乱暴な言葉はNPCを苛立たせます</li>
-          <li>信頼度が高いと特別な情報を教えてもらえます</li>
+          <li>感情がこもった声ほど NPC の反応が豊かになります</li>
+          <li>丁寧にゆっくり話すと好感度・信頼度が上がります</li>
+          <li>怒鳴る・乱暴な言葉は NPC を苛立たせます</li>
+          <li>信頼度が高いと特別な情報や秘密を教えてもらえます</li>
         </ul>
       </div>
 

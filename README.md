@@ -12,11 +12,10 @@
 
 | 機能 | 内容 |
 |------|------|
-| 🎤 リアルタイム音声認識 | AmiVoice WebSocket API で発話をストリーミング認識 |
-| 📁 音声ファイルアップロード | AmiVoice 非同期 HTTP API で WAV / MP3 / M4A を解析 |
-| 💢 感情分析 | AmiVoice ESAS の 20 種感情パラメータから「怒り/悲しみ/穏やか/普通」を判定 |
-| 🗣️ 話速・口調分析 | テキストと発話時間から「速い/遅い」「丁寧/乱暴」を推定 |
-| 🤖 NPC 応答生成 | Claude (claude-sonnet-4) がキャラ設定 + 状態を踏まえて返答 |
+| 📁 音声ファイル認識 | AmiVoice 非同期 HTTP API（v1）で WAV / MP3 / M4A を解析 |
+| 💢 感情分析 | AmiVoice ESAS の 10 種感情パラメータ（energy / stress / joy / aggression 等）を取得し、Claude にそのまま渡す |
+| 🗣️ 話速・口調分析 | 音声長と認識テキストから「速い/遅い」「丁寧/乱暴」を推定 |
+| 🤖 NPC 応答生成 | Claude (claude-sonnet-4) がキャラ設定 + 状態 + 感情スコアを踏まえて返答 |
 | 📊 ステータス管理 | 好感度・信頼度・苛立ち度を会話ごとに増減してパーソナリティに反映 |
 | 👥 4 キャラクター切替 | 情報屋・魔女・賞金稼ぎ・商人それぞれ独自の性格と返答ロジック |
 
@@ -24,11 +23,9 @@
 
 ## 🛠 技術スタック
 
-- **フロントエンド**: Vanilla JS + Web Audio API + WebSocket
+- **フロントエンド**: Vanilla JS（フレームワーク非依存）
 - **バックエンド**: Node.js + Express
-- **音声認識・感情分析**: [AmiVoice Cloud Platform API](https://acp.amivoice.com/)
-  - WebSocket API（リアルタイム録音）
-  - 非同期 HTTP API v1（ファイルアップロード + 感情分析）
+- **音声認識・感情分析**: [AmiVoice Cloud Platform API](https://acp.amivoice.com/) 非同期 HTTP API v1
 - **対話生成**: [Anthropic Claude API](https://www.anthropic.com/) (claude-sonnet-4)
 
 ---
@@ -79,12 +76,15 @@ npm start
 ## 🎮 使い方
 
 1. 上部のキャラクターカードで話したい NPC を選択
-2. 🎤 マイクボタンを押して話しかける、または 📁 から音声ファイルをアップロード
+2. 📁 音声ファイル（WAV / MP3 / M4A など）をアップロード
 3. 認識結果と発話分析（話速・感情・口調）が表示される
 4. NPC が応答し、ステータスバー（好感度・信頼度・苛立ち度）が変動
 
+スマートフォンや PC のボイスメモアプリで録音した音声をそのまま使えます。
+
 ### ヒント
 
+- **感情をのせて話す** ほど NPC の反応が豊かになる（声色のストレスや喜びを Claude が読み取る）
 - **丁寧にゆっくり話す** → 好感度・信頼度が上がる
 - **乱暴な言葉づかい** → 苛立ち度が上昇、無視されることも
 - **信頼度が 60 を超える** とキャラクターが秘密や裏情報を教えてくれる
@@ -114,9 +114,8 @@ voice-persona/
 
 | メソッド | パス | 用途 |
 |---------|------|------|
-| `GET` | `/api/amivoice-token` | AmiVoice WebSocket 用の API キーを返す |
-| `POST` | `/api/recognize` | 音声ファイルを AmiVoice 非同期 HTTP API（v1）に投げて認識 + 感情分析 |
-| `POST` | `/api/chat` | 認識結果と NPC 状態を Claude に送り、応答 JSON を返す |
+| `POST` | `/api/recognize` | 音声ファイルを AmiVoice 非同期 HTTP API（v1）に投げて認識 + 感情分析（ジョブ投入 → ポーリング） |
+| `POST` | `/api/chat` | 認識結果・感情スコア・NPC 状態を Claude に送り、応答 JSON を返す |
 | `GET` | `/api/characters` | 利用可能なキャラクター ID と表示名の一覧 |
 
 ### `/api/chat` のリクエスト/レスポンス例
@@ -157,8 +156,8 @@ voice-persona/
 - **キャラクター設定はサーバー側に隠蔽** — フロントには `characterId` だけ渡し、システムプロンプト本体は露出しない
 - **プロンプトキャッシュ** — Claude の Anthropic API で `cache_control: { type: "ephemeral" }` を使い、静的なシステムプロンプトを 5 分キャッシュしてコスト削減
 - **動的状態はユーザーメッセージに分離** — 状態値をシステムプロンプトに埋め込まないことで、キャラ切り替え後の応答ズレを防止
-- **AmiVoice API の正しいフロー実装** — 非同期 HTTP API は **ジョブ投入 → ポーリング** が必須。投入直後の `text:"..."` はプレースホルダーである仕様に準拠
-- **Web Audio API での PCM 変換** — マイク入力（Float32）→ Int16 PCM 16kHz モノラルに変換し AmiVoice WebSocket に送信
+- **AmiVoice 非同期 HTTP API の正しいフロー実装** — `POST /v1/recognitions` でジョブ投入 → `GET /v1/recognitions/{sessionid}` で `status` が `completed` になるまでポーリング。投入直後の `text:"..."` はプレースホルダーである公式仕様に準拠（タイムアウト 5 分、ポーリング間隔 3 秒）
+- **AmiVoice の感情スコアをそのまま Claude に渡す** — energy / stress / joy / aggression など 10 指標を Claude に渡し、システムプロンプトに各指標の意味と判定優先順位を埋め込むことで、声色から細やかな性格反応を生成
 
 ---
 

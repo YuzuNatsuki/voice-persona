@@ -487,6 +487,67 @@ body {
 }
 
 /* ── ガイドパネル ─────────────────────────────────────────── */
+/* ── 感情スコア詳細パネル ───────────────────────────────── */
+.sentiment-panel {
+  background: #0d0d1f;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.75rem;
+}
+
+.sentiment-panel summary {
+  cursor: pointer;
+  color: var(--accent-gold);
+  font-weight: 600;
+  user-select: none;
+  outline: none;
+}
+.sentiment-panel summary:hover { color: var(--accent-blue); }
+
+.sentiment-scores {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 12px;
+  margin-top: 10px;
+  font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+}
+
+.sentiment-empty {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 8px 0;
+  font-family: inherit;
+}
+
+.sentiment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.sentiment-row .sentiment-name {
+  color: var(--text-secondary);
+}
+.sentiment-row .sentiment-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* スコアが「有意（>0 の補助指標）」のときに強調表示 */
+.sentiment-row.is-active {
+  background: rgba(201, 168, 76, 0.12);
+}
+.sentiment-row.is-active .sentiment-name {
+  color: var(--accent-gold);
+}
+.sentiment-row.is-active .sentiment-value {
+  color: var(--accent-gold);
+}
+
 .guide-panel {
   background: #0d0d1f;
   border: 1px solid var(--border-color);
